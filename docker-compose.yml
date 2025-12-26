@@ -100,10 +100,13 @@ services:
       - QUARKUS_GRPC_CLIENTS_USER_SERVICE_PORT=9001
       - QUARKUS_GRPC_CLIENTS_AUTHORIZATION_SERVICE_HOST=authorization-service
       - QUARKUS_GRPC_CLIENTS_AUTHORIZATION_SERVICE_PORT=9004
+      - QUARKUS_GRPC_CLIENTS_NODEJS_SERVICE_HOST=nodejs-service
+      - QUARKUS_GRPC_CLIENTS_NODEJS_SERVICE_PORT=9006
     depends_on:
       - consul
       - authorization-service
       - user-service
+      - nodejs-service
     networks:
       - banking-network
     healthcheck:
@@ -133,6 +136,29 @@ services:
       - banking-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nodejs-service:
+    build:
+      context: ./app/nodejs-service
+      dockerfile: Dockerfile
+    container_name: nodejs-service
+    ports:
+      - "9006:9006"
+      - "9007:9007"
+    environment:
+      - GRPC_PORT=9006
+      - HTTP_PORT=9007
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+    depends_on:
+      - consul
+    networks:
+      - banking-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9007/health"]
       interval: 30s
       timeout: 10s
       retries: 3

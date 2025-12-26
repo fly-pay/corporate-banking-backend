@@ -22,6 +22,8 @@ public class SecurityFilter implements ContainerRequestFilter {
             "/api/v1/auth/signup",
             "/api/v1/auth/login",
             "/api/v1/auth/refresh",
+            "/api/v1/greeting/hello",
+            "/api/v1/greeting/info",
             "/health",
             "/q/health"
     );

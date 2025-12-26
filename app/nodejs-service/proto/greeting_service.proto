@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package com.corporatebanking.nodejsservice;
+
+option java_multiple_files = true;
+option java_package = "com.corporatebanking.nodejsservice.grpc";
+option java_outer_classname = "GreetingServiceProto";
+
+// Greeting Service
+service GreetingService {
+  rpc SayHello (HelloRequest) returns (HelloResponse);
+  rpc GetGreetingInfo (GreetingInfoRequest) returns (GreetingInfoResponse);
+}
+
+// Request/Response Messages
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string message = 1;
+  string timestamp = 2;
+}
+
+message GreetingInfoRequest {
+  // Empty for now, can be extended
+}
+
+message GreetingInfoResponse {
+  string service_name = 1;
+  string language = 2;
+  string version = 3;
+  string message = 4;
+}
+
