@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package com.corporatebanking.authorizationservice;
+
+option java_multiple_files = true;
+option java_package = "com.corporatebanking.authorizationservice.grpc";
+option java_outer_classname = "AuthorizationServiceProto";
+
+// Authorization Service
+service AuthorizationService {
+  rpc Signup (SignupRequest) returns (TokenResponse);
+  rpc Authenticate (AuthenticateRequest) returns (TokenResponse);
+  rpc ValidateToken (ValidateTokenRequest) returns (TokenValidationResponse);
+  rpc RefreshToken (RefreshTokenRequest) returns (TokenResponse);
+  rpc GetUserInfo (GetUserInfoRequest) returns (UserInfoResponse);
+  rpc Logout (LogoutRequest) returns (LogoutResponse);
+  rpc CheckPermission (CheckPermissionRequest) returns (PermissionResponse);
+}
+
+// Request/Response Messages
+message SignupRequest {
+  string email = 1;
+  string password = 2;
+  string firstName = 3;
+  string lastName = 4;
+  string phoneNumber = 5;
+  string role = 6;
+}
+
+message AuthenticateRequest {
+  string username = 1;
+  string password = 2;
+  string clientId = 3;
+  string clientSecret = 4;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message RefreshTokenRequest {
+  string refreshToken = 1;
+  string clientId = 2;
+  string clientSecret = 3;
+}
+
+message GetUserInfoRequest {
+  string token = 1;
+}
+
+message LogoutRequest {
+  string token = 1;
+  string refreshToken = 2;
+}
+
+message CheckPermissionRequest {
+  string token = 1;
+  string resource = 2;
+  string scope = 3;
+}
+
+message TokenResponse {
+  string accessToken = 1;
+  string refreshToken = 2;
+  string tokenType = 3;
+  int32 expiresIn = 4;
+  string scope = 5;
+}
+
+message TokenValidationResponse {
+  bool valid = 1;
+  string userId = 2;
+  string username = 3;
+  string email = 4;
+  repeated string roles = 5;
+  int64 expiresAt = 6;
+  string error = 7;
+}
+
+message UserInfoResponse {
+  string userId = 1;
+  string username = 2;
+  string email = 3;
+  string firstName = 4;
+  string lastName = 5;
+  repeated string roles = 6;
+  map<string, string> attributes = 7;
+}
+
+message LogoutResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message PermissionResponse {
+  bool granted = 1;
+  string message = 2;
+}
+
