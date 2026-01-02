@@ -35,19 +35,29 @@ sqlplus -S / as sysdba <<EOF
 SET SERVEROUTPUT ON;
 ALTER SESSION SET CONTAINER=CDB\$ROOT;
 
--- Use XEPDB1 (default PDB) or CORPORATE_BANKING if it exists
+-- Open PDBs (Fixed to include ORCLPDB1)
 BEGIN
-  EXECUTE IMMEDIATE 'ALTER PLUGGABLE DATABASE CORPORATE_BANKING OPEN';
-EXCEPTION
-  WHEN OTHERS THEN
-    BEGIN
-      EXECUTE IMMEDIATE 'ALTER PLUGGABLE DATABASE XEPDB1 OPEN';
-    EXCEPTION
-      WHEN OTHERS THEN NULL;
-    END;
+  -- 1. Try CORPORATE_BANKING
+  BEGIN
+    EXECUTE IMMEDIATE 'ALTER PLUGGABLE DATABASE CORPORATE_BANKING OPEN';
+    DBMS_OUTPUT.PUT_LINE('Opened CORPORATE_BANKING');
+  EXCEPTION WHEN OTHERS THEN NULL; END;
+
+  -- 2. Try ORCLPDB1 (Added for your specific case)
+  BEGIN
+    EXECUTE IMMEDIATE 'ALTER PLUGGABLE DATABASE ORCLPDB1 OPEN';
+    DBMS_OUTPUT.PUT_LINE('Opened ORCLPDB1');
+  EXCEPTION WHEN OTHERS THEN NULL; END;
+
+  -- 3. Try XEPDB1 (Default fallback)
+  BEGIN
+    EXECUTE IMMEDIATE 'ALTER PLUGGABLE DATABASE XEPDB1 OPEN';
+    DBMS_OUTPUT.PUT_LINE('Opened XEPDB1');
+  EXCEPTION WHEN OTHERS THEN NULL; END;
 END;
 /
 
+-- Register the service
 BEGIN
   BEGIN
     DBMS_SERVICE.CREATE_SERVICE(
@@ -58,7 +68,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Service CORPORATE_BANKING created');
   EXCEPTION
     WHEN OTHERS THEN
-      DBMS_OUTPUT.PUT_LINE('Service might already exist (this is OK): ' || SUBSTR(SQLERRM, 1, 100));
+      DBMS_OUTPUT.PUT_LINE('Service might already exist: ' || SUBSTR(SQLERRM, 1, 100));
   END;
   
   BEGIN
@@ -66,7 +76,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Service CORPORATE_BANKING started');
   EXCEPTION
     WHEN OTHERS THEN
-      DBMS_OUTPUT.PUT_LINE('Service might already be started (this is OK): ' || SUBSTR(SQLERRM, 1, 100));
+      DBMS_OUTPUT.PUT_LINE('Service might already be started: ' || SUBSTR(SQLERRM, 1, 100));
   END;
 END;
 /
@@ -74,13 +84,18 @@ END;
 -- Verify service registration
 SELECT name, network_name, enabled FROM v\$services WHERE name LIKE '%CORPORATE%' OR name = 'XE' ORDER BY name;
 
--- Save PDB state so it persists after container restart
+-- Save PDB state so it persists (Fixed to include ORCLPDB1)
 BEGIN
-  EXECUTE IMMEDIATE 'ALTER PLUGGABLE DATABASE CORPORATE_BANKING SAVE STATE';
-  DBMS_OUTPUT.PUT_LINE('PDB CORPORATE_BANKING state saved');
-EXCEPTION
-  WHEN OTHERS THEN
-    DBMS_OUTPUT.PUT_LINE('Note: Could not save PDB state (this is OK if PDB does not exist yet): ' || SUBSTR(SQLERRM, 1, 100));
+  -- Save CORPORATE_BANKING state
+  BEGIN
+    EXECUTE IMMEDIATE 'ALTER PLUGGABLE DATABASE CORPORATE_BANKING SAVE STATE';
+  EXCEPTION WHEN OTHERS THEN NULL; END;
+
+  -- Save ORCLPDB1 state
+  BEGIN
+    EXECUTE IMMEDIATE 'ALTER PLUGGABLE DATABASE ORCLPDB1 SAVE STATE';
+    DBMS_OUTPUT.PUT_LINE('PDB ORCLPDB1 state saved');
+  EXCEPTION WHEN OTHERS THEN NULL; END;
 END;
 /
 
@@ -90,4 +105,3 @@ EOF
 echo "========================================="
 echo "PDB service registration completed"
 echo "========================================="
-
