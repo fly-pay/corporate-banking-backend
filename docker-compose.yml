@@ -11,7 +11,7 @@ services:
     volumes:
       - oracle-data:/opt/oracle/oradata
       - ./oracle-init:/container-entrypoint-initdb.d:ro
-      - ./oracle-init/startup-register.sh:/startup-register.sh:ro
+      - ./oracle-init/startup-register.sh:/container-entrypoint-startdb.d/00-startup-register.sh:ro
     networks:
       - banking-network
     healthcheck:
