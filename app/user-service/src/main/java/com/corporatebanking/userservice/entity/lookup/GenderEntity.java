@@ -5,7 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Gender") // Change table name for others
+@Table(name = "Gender")
 public class GenderEntity extends BaseEntity {
     public String name;
 }
