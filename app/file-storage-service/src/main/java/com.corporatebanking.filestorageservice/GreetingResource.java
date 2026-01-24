@@ -1,4 +1,4 @@
-package io.quarkus.platform;
+package com.corporatebanking.filestorageservice;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
